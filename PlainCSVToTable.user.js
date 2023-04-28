@@ -253,6 +253,7 @@ tr>th {
   left: 0;
   z-index: 1;
 }
+
 /*
 tr>th:first-child {
   z-index: 3;
@@ -435,8 +436,9 @@ function buildPreferenceSection() {
         localStorage.setItem(propNameFreezeTableRows, window.freezeTableRows);
         localStorage.setItem(propNameFreezeTableColumns, window.freezeTableColumns);
 
-        updateTableSection(window.freezeTableRows, window.freezeTableColumns);
+        // Order of these below 2 lines matter as actual width can be calculated only if element is visible.
         showTableData();
+        updateTableSection(window.freezeTableRows, window.freezeTableColumns);
     }
 
     $("input[id='input-freeze-rows']").on('input', function(e) {
@@ -510,6 +512,11 @@ function guessDelimiter(row) {
 
 // Reference base script - https://github.com/sartor/csv-beautifier/blob/master/content.js
 function insertTable(rows, numHeaderRows, numHeaderColumns) {
+    const headerRowClassPrefix = "headerRow";
+    const headerColumnClassPrefix = "headerColumn";
+    const rowClassPrefix = "row";
+    const columnClassPrefix = "column";
+
     const tbl = document.createElement("table");
 
     tbl.style.fontSize = '12px';
@@ -520,20 +527,37 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
     // Get maximum number of columns across rows.
     var maxColumnCounts = rows.reduce((max, current, idx, arr) => Math.max(max, current.length), Number.NEGATIVE_INFINITY)
 
+    function createCellWithHeaderColumns(cellIdx, numHeaderColumns) {
+        var cell = null;
+
+        if (cellIdx < numHeaderColumns) {
+            cell = document.createElement("th");
+            cell.classList.add(headerColumnClassPrefix + cellIdx);
+        }
+        else {
+            cell = document.createElement("td");
+        }
+
+        cell.classList.add(columnClassPrefix + cellIdx);
+        return cell;
+    }
+
     // Header rows
     const thead = document.createElement("thead");
     tbl.appendChild(thead);
     rows.forEach((row, rowIdx) => {
         if (rowIdx < numHeaderRows) {
             var trow = thead.insertRow(-1);
+            trow.classList.add(headerRowClassPrefix + rowIdx);
+            trow.classList.add(rowClassPrefix + rowIdx);
             row.forEach((cell, cellIdx) => {
-                var tcell = (cellIdx < numHeaderColumns) ? document.createElement("th") : document.createElement("td");
+                var tcell = createCellWithHeaderColumns(cellIdx, numHeaderColumns);
                 trow.append(tcell);
                 tcell.textContent = cell;
             })
             // Fill in remaining empty columns
-            for (idx = row.length; idx < maxColumnCounts; idx++) {
-                var tcell = (idx < numHeaderColumns) ? document.createElement("th") : document.createElement("td");
+            for (cellIdx = row.length; cellIdx < maxColumnCounts; cellIdx++) {
+                var tcell = createCellWithHeaderColumns(cellIdx, numHeaderColumns);
                 trow.append(tcell);
                 tcell.textContent = "";
             }
@@ -546,14 +570,15 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
     rows.forEach((row, rowIdx) => {
         if (rowIdx >= numHeaderRows) {
             var trow = tbody.insertRow(-1);
+            trow.classList.add(rowClassPrefix + rowIdx);
             row.forEach((cell, cellIdx) => {
-                var tcell = (cellIdx < numHeaderColumns) ? document.createElement("th") : document.createElement("td");
+                var tcell = createCellWithHeaderColumns(cellIdx, numHeaderColumns);
                 trow.append(tcell);
                 tcell.textContent = cell;
             })
             // Fill in remaining empty columns
-            for (idx = row.length; idx < maxColumnCounts; idx++) {
-                var tcell = (idx < numHeaderColumns) ? document.createElement("th") : document.createElement("td");
+            for (cellIdx = row.length; cellIdx < maxColumnCounts; cellIdx++) {
+                var tcell = createCellWithHeaderColumns(cellIdx, numHeaderColumns);
                 trow.append(tcell);
                 tcell.textContent = "";
             }
@@ -562,7 +587,29 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
 
     $(window.tableElement).html("");
     $(window.tableElement).append(tbl);
+
+    updateHeaderRowsAndColumnsProperties(tbl, numHeaderRows, numHeaderColumns, rows.length, maxColumnCounts);
+
     return tbl;
+}
+
+// Update properties especially for freezing header columns at their position.
+function updateHeaderRowsAndColumnsProperties(tbl, numHeaderRows, numHeaderColumns, maxRows, maxColumns) {
+    if (numHeaderColumns == 0) return;
+
+    // Add left properties for a cell based on previous column
+    var offset = 0;
+    for (var colIdx = 1; colIdx < numHeaderColumns; colIdx++) {
+        var prevColIdx = colIdx - 1;
+        // Get visible width of any of the previous columns, assuming all have same width
+        var prevColWidth = document.getElementsByClassName("headerColumn" + prevColIdx)[0].offsetWidth;
+        offset += prevColWidth;
+
+        // Loop through all cells to update properties
+        for (var rowIdx = 0; rowIdx < maxRows; rowIdx++) {
+            document.getElementsByClassName("headerColumn" + colIdx)[rowIdx].style.left = offset + "px";
+        }
+    }
 }
 
 function parse (s, dialect) {
