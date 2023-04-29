@@ -517,7 +517,9 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
     const rowClassPrefix = "row";
     const columnClassPrefix = "column";
 
+    window.tableID = "csvhtmltable";
     const tbl = document.createElement("table");
+    tbl.setAttribute("id", window.tableID);
 
     tbl.style.fontSize = '12px';
     tbl.style.fontFamily = 'sans-serif';
@@ -526,6 +528,11 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
 
     // Get maximum number of columns across rows.
     var maxColumnCounts = rows.reduce((max, current, idx, arr) => Math.max(max, current.length), Number.NEGATIVE_INFINITY)
+
+    window.headerRowCount = numHeaderRows;
+    window.headerColumnCount = numHeaderColumns;
+    window.rowCount = rows.length
+    window.columnCount = maxColumnCounts;
 
     function createCellWithHeaderColumns(cellIdx, numHeaderColumns) {
         var cell = null;
@@ -585,12 +592,50 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
         }
     });
 
+    // Clear table element to restart fresh.
     $(window.tableElement).html("");
+
+    // Create search field
+    const tableSearchId = "myTableSearch";
+    var searchDiv = document.createElement("div");
+    searchDiv.innerHTML = '<input type="text" id="' + tableSearchId + '" style="width:100%;margin-top:10px;margin-bottom:10px;" placeholder="Search here for row values [escape key to clear] ...">';
+
+    // Add search field and table to dom.
+    $(window.tableElement).append(searchDiv);
     $(window.tableElement).append(tbl);
 
+    // Add hooks for table search.
+    createTableSearchHooks(tableSearchId, window.tableID)
+
+    // Update row and column attributes for freezing rows and columns.
     updateHeaderRowsAndColumnsProperties(tbl, numHeaderRows, numHeaderColumns, rows.length, maxColumnCounts);
 
     return tbl;
+}
+
+function createTableSearchHooks(tableSearchId, tableID) {
+    var searchDiv = document.querySelector("#" + tableSearchId);
+
+    searchDiv.onkeyup = function(e) {
+      let prefTable = document.querySelector("#" + tableID);
+      // Declare variables
+      var input, filter, table, tr, td, i;
+      input = document.querySelector("#" + tableSearchId);
+      if (e.keyCode == 27) input.value = '';
+      filter = input.value.toUpperCase();
+      tr = prefTable.getElementsByTagName("tr");
+
+      // Loop through all table rows, and hide those who don't match the search query
+      // Start search after header rows (frozen)
+      for (i = window.headerRowCount; i < tr.length; i++) {
+        if (tr[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+
 }
 
 // Update properties especially for freezing header columns at their position.
