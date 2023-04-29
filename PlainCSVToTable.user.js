@@ -210,6 +210,21 @@ input:checked + .slider:before {
     $('head').append(
 `<style>
 
+#csvhtmltable {
+  transform: translateY(40px);
+}
+
+div.table-search {
+  position: fixed;
+  background-color: white;
+  width: 100%;
+  height: 20px;
+  padding: 10px 0px 10px 5px;
+  top: 0;
+  left: 0;
+  z-index: 9900;
+}
+
 .wrapper {
   border: 1px solid #ccc;
   background: #f0f3f9;
@@ -598,7 +613,8 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
     // Create search field
     const tableSearchId = "myTableSearch";
     var searchDiv = document.createElement("div");
-    searchDiv.innerHTML = '<input type="text" id="' + tableSearchId + '" style="width:100%;margin-top:10px;margin-bottom:10px;" placeholder="Search here for row values [escape key to clear] ...">';
+    searchDiv.classList.add("table-search");
+    searchDiv.innerHTML = '<input type="text" id="' + tableSearchId + '" style="width:100%;" placeholder="Search here for row values [escape key to clear] ...">';
 
     // Add search field and table to dom.
     $(window.tableElement).append(searchDiv);
@@ -652,9 +668,11 @@ function updateHeaderRowsAndColumnsProperties(tbl, numHeaderRows, numHeaderColum
 
         // Loop through all cells to update properties
         for (var rowIdx = 0; rowIdx < maxRows; rowIdx++) {
+            // set left property, required for freeze behaviour
             document.getElementsByClassName("headerColumn" + colIdx)[rowIdx].style.left = offset + "px";
         }
     }
+
 }
 
 function parse (s, dialect) {
