@@ -18,9 +18,10 @@
 
 /*
   On loading the csv file directly in browser it provides a small slider button at top right corner of the page,
-  which let's you conver te csv data in html table format. It let's you choose to freeze rows and columns as required.
+  which let's you convert the csv data in html table format. It let's you choose to freeze rows and columns as required.
   The option to choose is provided only once if you click on the button but if you press key 'p' it will bring the preference
   button to change the number of columns and rows to be frozen dynamically.
+  You can click on first column of any row to highlight full row, press escape key to remove highlighting.
 */
 
 /* global $, hljs */
@@ -269,11 +270,6 @@ tr>th {
   z-index: 1;
 }
 
-/*
-tr>th:first-child {
-  z-index: 3;
-}*/
-
 th,
 td {
   font-size: 12px;
@@ -301,7 +297,15 @@ tr>*:last-child {
 }
 
 tbody>tr:nth-child(even) {
-    background-color: lightgray;
+  background-color: lightgray;
+}
+
+tr.row-selected td {
+  background-color: #fffec9;
+}
+
+tr.row-selected th {
+  background-color: #fffec9;
 }
 
 </style>`
@@ -492,6 +496,15 @@ function buildPreferenceSection() {
                 e.preventDefault();
                 showPreferences();
             }
+
+            // On escape key clear the highlighted rows
+            if (e.key=='Escape'||e.key=='Esc'||e.keyCode==27) {
+                // Remove highlighted rows on escape.
+                var tr = $("#" + window.tableID + " tr");
+                if(tr.hasClass("row-selected")) {
+                    tr.removeClass("row-selected");
+                }
+            }
         }
      }, true);
 
@@ -625,6 +638,16 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
 
     // Update row and column attributes for freezing rows and columns.
     updateHeaderRowsAndColumnsProperties(tbl, numHeaderRows, numHeaderColumns, rows.length, maxColumnCounts);
+
+    // Highlight row on button click.
+    $("#" + window.tableID + " tr").find("th:first").on("click", function() {
+        var tr = $(this).parent();
+        if(tr.hasClass("row-selected")) {
+            tr.removeClass("row-selected");
+        } else {
+            tr.addClass("row-selected");
+        }
+    });
 
     return tbl;
 }
