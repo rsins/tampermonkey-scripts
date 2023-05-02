@@ -6,6 +6,8 @@
 // @version     0.1
 // @match       *://*/*.csv
 // @match       *://*/*.CSV
+// @match       *://*/*.csv?*
+// @match       *://*/*.CSV?*
 // @icon        data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant       GM_setValue
 // @grant       GM_getValue
