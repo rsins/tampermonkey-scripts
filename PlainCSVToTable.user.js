@@ -627,7 +627,8 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
     const tableSearchId = "myTableSearch";
     var searchDiv = document.createElement("div");
     searchDiv.classList.add("table-search");
-    searchDiv.innerHTML = '<input type="text" id="' + tableSearchId + '" style="width:100%;" placeholder="Search here for row values [escape key to clear] ...">';
+    const fileNameFromURL = window.location.pathname.split("/").pop();
+    searchDiv.innerHTML = '<input type="text" id="' + tableSearchId + '" style="width:100%;" placeholder="[file : ' + fileNameFromURL + '] Search here for row values [escape key to clear] ...">';
 
     // Add search field and table to dom.
     $(window.tableElement).append(searchDiv);
