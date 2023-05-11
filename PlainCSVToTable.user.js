@@ -320,6 +320,7 @@ function createSectionsAndMoveContentToItsOwnElement() {
 
     // Create new content element and copy main content to this element
     window.contentElement = $("<pre id=" + window.contentElementID + " style='unicode-bidi: plaintext'></pre>")
+    // Remove new line and spaces from start and end of content.
     window.contentElement.text(document.body.textContent.replace(/(^\s*(?!.+)\n+)|(\n+\s+(?!.+)$)/g, ""));
 
     // Clear main content
