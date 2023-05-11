@@ -320,7 +320,7 @@ function createSectionsAndMoveContentToItsOwnElement() {
 
     // Create new content element and copy main content to this element
     window.contentElement = $("<pre id=" + window.contentElementID + " style='unicode-bidi: plaintext'></pre>")
-    window.contentElement.text(document.body.textContent);
+    window.contentElement.text(document.body.textContent.replace(/(^\s*(?!.+)\n+)|(\n+\s+(?!.+)$)/g, ""));
 
     // Clear main content
     document.body.textContent = '';
