@@ -838,5 +838,10 @@ function chomp(s, lineTerminator) {
 (function() {
     'use strict';
 
+    // Soem pages are matched but are not plain CSV (e.g. properties for confluence attachment)
+    if (confirm("PlainCSVToTable : Process as plain CSV?") == false) {
+        return;
+    }
+
     init();
 })();
