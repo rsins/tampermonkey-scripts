@@ -730,11 +730,11 @@ function parse (s, dialect) {
             }
 
             // Convert unquoted numbers to their appropriate types
-            if (/^\d+$/.test(field)) {
-                field = parseInt(field, 10);
-            } else if (/^\d*\.\d+$|^\d+\.\d*$/.test(field)) {
-                field = parseFloat(field);
-            }
+            //if (/^\d+$/.test(field)) {
+            //    field = parseInt(field, 10);
+            //} else if (/^\d*\.\d+$|^\d+\.\d*$/.test(field)) {
+            //    field = parseFloat(field);
+            //}
         }
         return field;
     };
