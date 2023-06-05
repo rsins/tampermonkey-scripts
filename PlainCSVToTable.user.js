@@ -496,8 +496,17 @@ function buildPreferenceSection() {
         if(!$(preferencesModal).is(":visible")) {
             // On pressing 'p' show the preferences
             if (e.which==80) {
-                e.preventDefault();
-                showPreferences();
+                  switch (e.target.tagName.toLowerCase()) {
+                    case "input":
+                    case "textarea":
+                    case "select":
+                    case "button":
+                      break;
+                    default:
+                      e.preventDefault();
+                      showPreferences();
+                      break;
+                }
             }
 
             // On escape key clear the highlighted rows
