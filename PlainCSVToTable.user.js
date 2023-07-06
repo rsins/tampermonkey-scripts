@@ -666,26 +666,36 @@ function insertTable(rows, numHeaderRows, numHeaderColumns) {
 }
 
 function createTableSearchHooks(tableSearchId, tableID) {
+    var timeout = null;
+    var DELAY = 500;
+
     var searchDiv = document.querySelector("#" + tableSearchId);
 
+    // Search should trigger with some delay after typing is stopped
     searchDiv.onkeyup = function(e) {
-      let prefTable = document.querySelector("#" + tableID);
-      // Declare variables
-      var input, filter, table, tr, td, i;
-      input = document.querySelector("#" + tableSearchId);
-      if (e.keyCode == 27) input.value = '';
-      filter = input.value.toUpperCase();
-      tr = prefTable.getElementsByTagName("tr");
-
-      // Loop through all table rows, and hide those who don't match the search query
-      // Start search after header rows (frozen)
-      for (i = window.headerRowCount; i < tr.length; i++) {
-        if (tr[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
-          tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
+        if (timeout) {
+            clearTimeout(timeout);
         }
-      }
+
+        timeout = setTimeout(function() {
+            let prefTable = document.querySelector("#" + tableID);
+            // Declare variables
+            var input, filter, table, tr, td;
+            input = document.querySelector("#" + tableSearchId);
+            if (e.keyCode == 27) input.value = '';
+            filter = input.value.toUpperCase();
+            tr = prefTable.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            // Start search after header rows (frozen)
+            for (var i = window.headerRowCount, len = tr.length; i < len; i++) {
+                if (tr[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }, DELAY);
     }
 
 }
